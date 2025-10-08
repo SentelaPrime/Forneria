@@ -1,0 +1,62 @@
+# Entorno virtual
+env/
+venv/
+ENV/
+.venv/
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de configuración o secretos
+*.env
+.env
+*.local
+*.log
+
+# Archivos de base de datos (si usas SQLite, pero no aplica para MySQL)
+*.sqlite3
+
+# Archivos de migración (opcional, si no quieres versionarlos)
+**/migrations/*.py
+**/migrations/*.pyc
+!*/migrations/__init__.py
+
+# Archivos de compilación
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Archivos de configuración de IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de cobertura de tests
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Archivos de pytest
+.pytest_cache/
+
+# Archivos de mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block contenido %}
+{% load crispy_forms_tags %}
+<div class="row">
+    <div class="col-8 offset-2 mx-auto mt-5">
+        <div class="card shadow-lg" style="width: 25rem;">
+            <img src="{% static 'images/logo.JPG' %}" class="card-img-top" alt="logo la forneria">
+            <div class="card-body">
+                <h5 class="card-title">Inicio de Sesión</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form | crispy }}
+                    <button class="btn btn-success" type="submit">Iniciar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
