@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block navbar %}
 <div class="row">
     <div class="col">
@@ -17,7 +16,7 @@
                             <a class="nav-link active" aria-current="page" href="#">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Ventas</a>
+                            <a class="nav-link" href="{% url 'ventas:lista_productos' %}">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">RRHH</a>
@@ -51,7 +50,7 @@
             <img src="{% static 'images/inventario.png' %}" class="card-img-top" alt="logo la forneria">
             <div class="card-body">
                 <h5 class="card-title">Mantenedor de Ventas</h5>
-                <a class="btn btn-success" href="#">Ingresar</a>
+                <a class="btn btn-success" href="{% url 'ventas:lista_productos' %}">Ingresar</a>
             </div>
         </div>
     </div>

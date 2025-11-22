@@ -1,0 +1,380 @@
+{% load static %}
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registrar Venta | La Fornería</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body { background-color: #fff9f5; font-family: 'Segoe UI', sans-serif; }
+    .navbar { margin-bottom: 30px; }
+    .navbar-brand { font-weight: 600; }
+    h2 { color: #d63384; font-weight: 700; text-align: center; margin: 20px 0; }
+    .pos-wrapper { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; }
+    .card { border: 0; border-radius: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.06); }
+    .section-title { font-weight: 700; color: #0d6efd; }
+    .sticky-actions { position: sticky; bottom: 0; background: #fff; padding: 12px; border-top: 1px solid #eaeaea; border-radius: 0 0 12px 12px; }
+    /* carrito */
+    .cart-table th { background: #0d6efd; color: #fff; text-align: center; }
+    .cart-table td { vertical-align: middle; text-align: center; }
+    .btn-remove { border: none; background: #ffefef; color: #c1121f; border-radius: 6px; padding: 4px 8px; }
+    .qty-input { max-width: 90px; text-align: center; }
+    .summary-box .form-label { font-weight: 600; }
+    .totals { font-weight: 800; font-size: 1.2rem; color: #dc3545; }
+    /* catálogo */
+    .catalog-toolbar .form-control, .catalog-toolbar .form-select { height: 42px; }
+    .product-card { cursor: pointer; border: 1px solid #f1f1f1; border-radius: 12px; transition: .15s; overflow: hidden; background: #fff; }
+    .product-card:hover { transform: translateY(-2px); box-shadow: 0 10px 18px rgba(0,0,0,.08); }
+    .product-thumb { width: 100%; height: 120px; object-fit: cover; background: #fafafa; }
+    .product-body { padding: 10px; }
+    .product-name { font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .product-price { color: #198754; font-weight: 700; }
+    .badge-cat { font-size: .7rem; }
+  </style>
+</head>
+<body>
+
+<!-- 🔹 Barra de navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">🥐 La Fornería</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'ventas:lista_productos' %}">Inventario</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'ventas:lista_ventas' %}">Ventas</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- 🔹 Contenido principal -->
+<div class="container py-3">
+  <h2><i class="bi bi-bag-plus-fill"></i> Registrar Venta</h2>
+
+  <form method="post" id="venta-form" novalidate>
+    {% csrf_token %}
+
+    <!-- Datos del cliente -->
+    <div class="card mb-3 p-3">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label section-title"><i class="bi bi-person-circle"></i> Cliente</label>
+          <input type="text" name="cliente_nombre" class="form-control" placeholder="Nombre completo" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Correo</label>
+          <input type="email" name="cliente_email" class="form-control" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">RUT / DNI</label>
+          <input type="text" name="cliente_rut" class="form-control" placeholder="12.345.678-9">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label section-title"><i class="bi bi-credit-card-2-front"></i> Método de pago</label>
+          {{ form.metodo_pago|add_class:"form-select" }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Descuento (%)</label>
+          {{ form.descuento|add_class:"form-control" }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">IVA (%)</label>
+          {{ form.iva|add_class:"form-control" }}
+        </div>
+      </div>
+    </div>
+
+    {{ formset.management_form }}
+
+    <div class="pos-wrapper">
+      <!-- 🧺 Carrito -->
+      <div class="card">
+        <div class="p-3 pb-0">
+          <h5 class="section-title mb-2"><i class="bi bi-basket2"></i> Detalle de la venta</h5>
+        </div>
+
+        <div class="p-3 pt-0">
+          <table class="table cart-table">
+            <thead>
+              <tr>
+                <th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="cart-body">
+              <!-- Fila base para clonar -->
+              <tr class="cart-row d-none">
+                <td class="text-start">
+                  <div class="d-flex align-items-center gap-2">
+                    <img class="thumb me-2" src="{% static 'img/no-image.png' %}" alt="producto" style="width:40px;height:40px;object-fit:cover;border-radius:6px">
+                    <span class="p-name">—</span>
+                  </div>
+                </td>
+                <td class="p-price">0.00</td>
+                <td><input type="number" min="1" value="1" class="form-control qty-input"></td>
+                <td class="p-subtotal">0.00</td>
+                <td><button type="button" class="btn-remove"><i class="bi bi-x-lg"></i></button></td>
+                <td class="d-none">
+                  <input type="hidden" name="form-0-producto" class="fs-producto">
+                  <input type="hidden" name="form-0-cantidad" class="fs-cantidad" value="1">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="summary-box row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Ítems</label>
+              <input type="text" class="form-control" id="items-count" value="0" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Subtotal Neto</label>
+              <input type="text" class="form-control" id="neto" value="0.00" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Total</label>
+              <input type="text" class="form-control totals" id="total" value="0.00" readonly>
+            </div>
+          </div>
+        </div>
+
+        <div class="sticky-actions d-flex justify-content-between align-items-center">
+          <small class="text-muted">* El total aplica Descuento (%) y luego IVA (%) automáticamente.</small>
+          <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Registrar Venta</button>
+        </div>
+
+        {% if venta_guardada %}
+        <div class="p-3">
+          <div class="alert alert-success text-center mb-2">✅ Venta #{{ venta_guardada.id }} registrada con éxito.</div>
+          <div class="text-center">
+            <a href="{% url 'ventas:generar_factura' venta_guardada.id %}" class="btn btn-info">🧾 Generar Factura</a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- 🧁 Catálogo -->
+      <div class="card p-3">
+        <div class="catalog-toolbar row g-2 mb-2">
+          <div class="col-md-8">
+            <input id="search" type="text" class="form-control" placeholder="Buscar producto…">
+          </div>
+          <div class="col-md-4">
+            <select id="filter-cat" class="form-select">
+              <option value="">Todas las categorías</option>
+              <option value="pan">Panadería</option>
+              <option value="pastel">Pastelería</option>
+              <option value="bebida">Bebidas</option>
+              <option value="otros">Otros</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="catalog" class="row g-3">
+          {% for p in productos %}
+          <div class="col-6 col-sm-4">
+            <div class="product-card"
+                 data-id="{{ p.id }}"
+                 data-nombre="{{ p.nombre|escapejs }}"
+                 data-precio="{{ p.precio }}"
+                 data-cat="{{ p.categoria }}"
+                 data-img="{% if p.imagen %}{{ p.imagen.url }}{% else %}{% static 'img/no-image.png' %}{% endif %}">
+              <img class="product-thumb" src="{% if p.imagen %}{{ p.imagen.url }}{% else %}{% static 'img/no-image.png' %}{% endif %}" alt="{{ p.nombre }}">
+              <div class="product-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <p class="product-name mb-0">{{ p.nombre }}</p>
+                  <span class="badge text-bg-light badge-cat">{{ p.get_categoria_display }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-1">
+                  <span class="product-price">$ {{ p.precio }}</span>
+                  <button type="button" class="btn btn-sm btn-outline-primary add-btn">
+                    <i class="bi bi-plus-circle"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="col-12"><div class="alert alert-light">No hay productos.</div></div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+/* ========= helpers de formset ========= */
+function totalFormsInput(){ return document.querySelector('input[name="form-TOTAL_FORMS"]'); }
+function rowIndexFromAny(row){
+  const any = row.querySelector('.fs-producto');
+  if (!any || !any.name) return 0;
+  const m = any.name.match(/^form-(\d+)-/); return m ? parseInt(m[1]) : 0;
+}
+function replaceIndex(str, oldI, newI){
+  const re = new RegExp(`(^|\\b)form-${oldI}-`, 'g');
+  return str.replace(re, `form-${newI}-`);
+}
+function reindexRows(){
+  const rows = document.querySelectorAll('#cart-body tr.cart-row:not(.d-none)');
+  rows.forEach((row, i)=>{
+    const oldI = rowIndexFromAny(row);
+    row.querySelectorAll('.fs-producto,.fs-cantidad').forEach(el=>{
+      if(el.name) el.name = replaceIndex(el.name, oldI, i);
+      if(el.id)   el.id   = replaceIndex(el.id,   oldI, i);
+    });
+  });
+  if(totalFormsInput()) totalFormsInput().value = rows.length;
+}
+
+/* ========= totales ========= */
+function computeTotals(){
+  let items = 0, neto = 0;
+  document.querySelectorAll('#cart-body tr.cart-row:not(.d-none)').forEach(row=>{
+    const price = parseFloat(row.dataset.price || '0');
+    const qty = parseInt(row.querySelector('.qty-input').value || '0', 10);
+    const sub = price * qty;
+    row.querySelector('.p-subtotal').textContent = sub.toFixed(2);
+    row.querySelector('.fs-cantidad').value = qty;
+    neto += sub; items += qty;
+  });
+  document.getElementById('items-count').value = items;
+  document.getElementById('neto').value = neto.toFixed(2);
+
+  const desc = parseFloat(document.querySelector('[name="descuento"]').value || '0');
+  const iva  = parseFloat(document.querySelector('[name="iva"]').value || '0');
+  let afterDesc = neto - (neto * (desc/100));
+  let total = afterDesc + (afterDesc * (iva/100));
+  document.getElementById('total').value = total.toFixed(2);
+}
+
+/* ========= crear fila del carrito ========= */
+function templateRow(){
+  const base = document.querySelector('#cart-body tr.cart-row');
+  if(!base) return null;
+  const clone = base.cloneNode(true);
+  clone.classList.remove('d-none');
+  return clone;
+}
+
+/* ========= añadir producto al carrito ========= */
+function addProductToCart(prod){
+  let found = null;
+  document.querySelectorAll('#cart-body tr.cart-row:not(.d-none)').forEach(row=>{
+    if(row.dataset.id == prod.id){ found = row; }
+  });
+  if(found){
+    const qty = found.querySelector('.qty-input');
+    qty.value = (parseInt(qty.value||'0',10)+1).toString();
+    computeTotals();
+    return;
+  }
+
+  const row = templateRow();
+  if(!row) return;
+
+  row.dataset.id = prod.id;
+  row.dataset.price = prod.precio;
+  row.querySelector('.p-name').textContent = prod.nombre;
+  row.querySelector('.thumb').src = prod.img;
+  row.querySelector('.p-price').textContent = parseFloat(prod.precio).toFixed(2);
+  row.querySelector('.qty-input').value = 1;
+  row.querySelector('.p-subtotal').textContent = parseFloat(prod.precio).toFixed(2);
+
+  const hiddenProd = row.querySelector('.fs-producto');
+  hiddenProd.value = prod.id;
+
+  document.getElementById('cart-body').appendChild(row);
+  reindexRows();
+
+  row.querySelector('.qty-input').addEventListener('change', (e)=>{
+    if(parseInt(e.target.value||'0',10) < 1) e.target.value = 1;
+    computeTotals();
+  });
+  row.querySelector('.btn-remove').addEventListener('click', ()=>{
+    row.remove();
+    reindexRows();
+    computeTotals();
+  });
+
+  computeTotals();
+}
+
+/* ========= catálogo: clicks, búsqueda, filtro ========= */
+
+// Añadir producto (botón + o click en tarjeta)
+document.querySelectorAll('.add-btn, .product-card').forEach(el=>{
+  el.addEventListener('click', e=>{
+    e.preventDefault();
+    const card = e.target.closest('.product-card');
+    if(!card) return;
+    const prod = {
+      id: card.dataset.id,
+      nombre: card.dataset.nombre,
+      precio: card.dataset.precio,
+      cat: card.dataset.cat.toLowerCase(),
+      img: card.dataset.img
+    };
+    addProductToCart(prod);
+  });
+});
+
+//  Búsqueda por nombre
+document.getElementById('search').addEventListener('input', e=>{
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll('.product-card').forEach(c=>{
+    const name = c.dataset.nombre.toLowerCase();
+    c.parentElement.classList.toggle('d-none', !name.includes(q));
+  });
+});
+
+//  Filtro por categoría (ahora funcionando)
+document.getElementById('filter-cat').addEventListener('change', e=>{
+  const cat = e.target.value.toLowerCase();
+  document.querySelectorAll('.product-card').forEach(c=>{
+    const cardCat = (c.dataset.cat || '').toLowerCase();
+    const show = !cat || cardCat.includes(cat);
+    c.parentElement.classList.toggle('d-none', !show);
+  });
+});
+
+//  Recalcular descuento/IVA
+['descuento','iva'].forEach(n=>{
+  const el = document.querySelector(`[name="${n}"]`);
+  if(el) el.addEventListener('input', computeTotals);
+});
+
+// 🧾 Al enviar, actualizar índices
+document.getElementById('venta-form').addEventListener('submit', ()=>{
+  reindexRows();
+});
+
+});
+</script>
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

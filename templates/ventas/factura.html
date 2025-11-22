@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura - Venta #{{ venta.id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body { background: #f8f9fa; font-family: 'Segoe UI', Arial, sans-serif; }
+        .invoice { max-width: 850px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .invoice-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .logo { font-weight: 700; color: #d63384; font-size: 1.8rem; display: flex; align-items: center; gap: 8px; }
+        .logo i { font-size: 1.9rem; color: #fd7e14; }
+        .table thead th { background: #212529; color: #fff; }
+        .total { font-size: 1.2rem; font-weight: 700; color: #dc3545; }
+        .btn i { margin-right: 6px; }
+        .footer-note { margin-top: 25px; font-size: 0.9rem; text-align: center; color: #6c757d; }
+        .client-info { background: #fff3cd; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        .client-info h5 { color: #495057; font-weight: 700; }
+        .client-info p { margin: 0; }
+    </style>
+</head>
+<body>
+<div class="invoice">
+    <div class="invoice-header">
+        <div class="logo">
+            <i class="bi bi-bag-heart"></i> La Fornería
+        </div>
+        <div class="text-end">
+            <strong>Factura / Boleta</strong><br>
+            <small><i class="bi bi-hash"></i> Venta ID: {{ venta.id }}</small><br>
+            <small><i class="bi bi-calendar3"></i> {{ venta.fecha|date:"d/m/Y H:i" }}</small>
+        </div>
+    </div>
+
+    <!-- 🧍 Datos del cliente -->
+    <div class="client-info">
+        <h5><i class="bi bi-person-circle"></i> Datos del Cliente</h5>
+        <p><strong>Nombre:</strong> {{ venta.cliente_nombre }}</p>
+        <p><strong>Correo:</strong> {{ venta.cliente_correo }}</p>
+        <p><strong>Teléfono:</strong> {{ venta.cliente_telefono }}</p>
+    </div>
+
+    <div class="mb-3">
+        <strong><i class="bi bi-cash-stack"></i> Método de pago:</strong> {{ venta.metodo_pago }}
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr><th>Producto</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>
+            {% for item in venta.items.all %}
+            <tr>
+                <td>{{ item.producto.nombre }}</td>
+                <td class="text-center">{{ item.cantidad }}</td>
+                <td class="text-end">${{ item.precio_unitario|floatformat:2 }}</td>
+                <td class="text-end">${{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center">No hay productos registrados en esta venta.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+        <!-- 🧾 Resumen de Totales -->
+    <div class="d-flex justify-content-end">
+        <div class="me-3 text-end">
+            <div><strong>Subtotal Neto:</strong> ${{ venta.total|floatformat:2|add:"-" }}</div>
+            <div><strong>Descuento:</strong> {{ venta.descuento|floatformat:2 }}%</div>
+            <div><strong>IVA:</strong> {{ venta.iva|floatformat:2 }}%</div>
+            <div class="total mt-2"><strong>Total Final:</strong> ${{ venta.total|floatformat:2 }}</div>
+        </div>
+    </div>
+
+
+    <div class="mt-4 text-center">
+        <a href="{% url 'ventas:lista_ventas' %}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Volver a lista</a>
+        <button onclick="window.print()" class="btn btn-danger"><i class="bi bi-file-earmark-pdf-fill"></i> Exportar PDF</button>
+    </div>
+
+    <div class="footer-note">
+        <i class="bi bi-heart-fill text-danger"></i> ¡Gracias por su compra! <br>
+        La Fornería — 🥐
+    </div>
+</div>
+</body>
+</html>
+
+

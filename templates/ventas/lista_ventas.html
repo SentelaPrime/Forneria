@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Ventas | La Fornería</title>
+    <link rel="stylesheet" href="{% static '/css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #fff9f5; font-family: 'Segoe UI', sans-serif; }
+        h2 { color: #d63384; font-weight: 700; margin-top: 20px; margin-bottom: 20px; }
+        .table img { border-radius: 6px; width: 70px; height: 70px; object-fit: cover; }
+        .navbar { margin-bottom: 30px; }
+        .navbar-brand { font-weight: 600; }
+        table {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #6c757d;
+            color: #fff;
+            text-align: center;
+        }
+        td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        td.products { text-align: left; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        .subtotal { font-weight: bold; color: #198754; }
+        .total-cell { font-weight: bold; color: #dc3545; }
+        .btn-new-sale { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<!-- 🔹 Barra de navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">🥐 La Fornería</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'ventas:lista_productos' %}">Inventario</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'ventas:lista_ventas' %}">Ventas</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- 🔹 Contenido principal -->
+<div class="container mt-4">
+    <h2>📋 Lista de Ventas</h2>
+
+    <!-- Botón para ir al formulario de nueva venta -->
+    <a href="{% url 'ventas:nueva_venta' %}" class="btn btn-primary btn-new-sale">+ Registrar Nueva Venta</a>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Método de pago</th>
+                <th>Productos</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in ventas %}
+            <tr>
+                <td>{{ venta.id }}</td>
+                <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                <td>{{ venta.cliente_nombre }}</td>
+                <td>{{ venta.metodo_pago }}</td>
+                <td class="products">
+                    {% for item in venta.items.all %}
+                        <div>{{ item.producto.nombre }} 
+                            <span class="subtotal"> ${{ item.precio_unitario }}</span> × {{ item.cantidad }}
+                        </div>
+                    {% endfor %}
+                </td>
+                <td class="total-cell">${{ venta.total|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center">No hay ventas registradas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
