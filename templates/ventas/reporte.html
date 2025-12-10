@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block contenido %}
+   
+<div class="dashboard-main-container">
+    <!-- Sidebar -->
+    <nav class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Fornería</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{% url 'home' %}" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:lista_ventas' %}" class="sidebar-link ">
+                    <span>🛒</span> Ventas
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:lista_productos' %}" class="sidebar-link">
+                    <span>📦</span> Inventario
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:nuevo_producto' %}" class="sidebar-link">
+                    <span>➕</span> Agregar Producto
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:ver_reporte' %}" class="sidebar-link active">
+                    <span>📈</span> Reportes
+                </a>
+            </li>
+            {% if request.user.is_authenticated and request.user.is_superuser %}
+            <li class="sidebar-item">
+                <a href="{% url 'usuarios_list' %}" class="sidebar-link">
+                    <span>👥</span> Usuarios
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+        <div class="sidebar-footer">
+            <a href="#" class="sidebar-link">
+                <span>⚙️</span> Configuración
+            </a>
+        </div>
+    </nav>
+
+
+        <!-- Content -->
+        <main class="dashboard-content">
+            <!-- Metrics Cards -->
+            <div class="dashboard-metrics-grid">
+                <div class="dashboard-metric-card">
+                    <h3 class="metric-card-title">Ventas del Día</h3>
+                    <p class="metric-card-value">{{ ventas_hoy }}</p>
+                    <p class="metric-card-subtitle">transacciones</p>
+                </div>
+                <div class="dashboard-metric-card">
+                    <h3 class="metric-card-title">Stock Bajo</h3>
+                    <p class="metric-card-value">{{ stock_bajo_count }}</p>
+                    <p class="metric-card-subtitle">productos (stock ≤ 5)</p>
+                    <div class="mt-2">
+                        <a href="{% url 'ventas:stock_bajo' %}" class="btn btn-sm btn-outline-primary">Ver lista</a>
+                    </div>
+                </div>
+                <div class="dashboard-metric-card">
+                    <h3 class="metric-card-title">Top Producto</h3>
+                    {% if top_producto %}
+                        <p class="metric-card-value">{{ top_producto.nombre }}</p>
+                        <p class="metric-card-subtitle">{{ top_producto.unidades }} unidades</p>
+                    {% else %}
+                        <p class="metric-card-value">—</p>
+                        <p class="metric-card-subtitle">sin datos</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Gráficos y Vencimientos - 7 DÍAS -->
+            <div class="dashboard-metrics-grid" style="margin-top: 16px;">
+                <!-- Listado por vencer 7 días -->
+                <div class="dashboard-metric-card" id="vencimientos-card">
+                    <h3 class="metric-card-title">Por vencer (7 días)</h3>
+                    <ul id="vencimientos-list" class="metric-list"></ul>
+                    <div id="vencimientos-extra" style="display: none;">
+                        <ul id="vencimientos-extra-list" class="metric-list"></ul>
+                    </div>
+                    <button id="vencimientos-toggle" class="metric-card-button" style="display:none;">Ver más</button>
+                </div>
+
+                <!-- gráficos removidos -->
+            </div>
+
+            <!-- Gráficos y Vencimientos - 14 DÍAS -->
+            <div class="dashboard-metrics-grid" style="margin-top: 16px;">
+                <!-- Listado por vencer 14 días -->
+                <div class="dashboard-metric-card" id="vencimientos-14-card">
+                    <h3 class="metric-card-title">Por vencer (14 días)</h3>
+                    <ul id="vencimientos-14-list" class="metric-list"></ul>
+                    <div id="vencimientos-14-extra" style="display: none;">
+                        <ul id="vencimientos-14-extra-list" class="metric-list"></ul>
+                    </div>
+                    <button id="vencimientos-14-toggle" class="metric-card-button" style="display:none;">Ver más</button>
+                </div>
+
+                <!-- gráficos removidos -->
+            </div>
+
+            <!-- Gráficos y Vencimientos - 30 DÍAS -->
+            <div class="dashboard-metrics-grid" style="margin-top: 16px;">
+                <!-- Listado por vencer 30 días -->
+                <div class="dashboard-metric-card" id="vencimientos-30-card">
+                    <h3 class="metric-card-title">Por vencer (30 días)</h3>
+                    <ul id="vencimientos-30-list" class="metric-list"></ul>
+                    <div id="vencimientos-30-extra" style="display: none;">
+                        <ul id="vencimientos-30-extra-list" class="metric-list"></ul>
+                    </div>
+                    <button id="vencimientos-30-toggle" class="metric-card-button" style="display:none;">Ver más</button>
+                </div>
+
+                <!-- gráficos removidos -->
+            </div>
+        </main>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const btn = document.getElementById('userMenuButton');
+  const menu = document.getElementById('userMenu');
+  if (!btn || !menu) return;
+
+  function hide(){
+    menu.hidden = true;
+    menu.classList.remove('open');
+    menu.setAttribute('aria-hidden','true');
+  }
+
+  function toggle(){
+    const willOpen = menu.hidden;
+    menu.hidden = !willOpen;
+    menu.classList.toggle('open', willOpen);
+    menu.setAttribute('aria-hidden', String(!willOpen));
+  }
+
+  btn.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
+  document.addEventListener('click', hide);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') hide(); });
+});
+</script>
+<script src="{% static 'js/expiraciones.js' %}"></script>
+{% endblock %}

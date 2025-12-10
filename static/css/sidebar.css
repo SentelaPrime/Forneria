@@ -1,0 +1,159 @@
+/* static/css/pages/_dashboard.css */
+/*
+    El estilo del dashboard post cuando se inicia sesion
+*/
+/*
+================================================================
+=                                                              =
+=        ESTILOS DE LA BARRA DE NAVEGACIÓN LATERAL (SIDEBAR)   =
+=                                                              =
+================================================================
+*/
+
+/* --- Contenedor Principal del Dashboard (Define el espacio para la Sidebar) --- */
+/* Este es el layout principal que divide la pantalla en dos: la barra lateral y el contenido. */
+.dashboard-main-container {
+    display: grid;
+    grid-template-columns: 240px 1fr; /* La primera columna (sidebar) tiene un ancho fijo de 240px. */
+    height: 100vh;                    /* Ocupa toda la altura de la ventana. */
+    background-color: #f8f9fa;        /* Un color de fondo gris claro para el área de contenido. */
+}
+
+/* --- Estilo del Contenedor de la Sidebar --- */
+/* La "caja" principal de la barra lateral. */
+.dashboard-sidebar {
+    background-color: #1a1a1a; /* Fondo negro oscuro para un alto contraste. */
+    color: #ffffff;            /* Texto blanco por defecto para todos los elementos internos. */
+    padding: 20px;             /* Espacio interior para que el contenido no esté pegado a los bordes. */
+    display: flex;             /* Usa Flexbox para organizar el contenido interno. */
+    flex-direction: column;    /* Apila los elementos (header, menu, footer) verticalmente. */
+}
+
+/* --- Cabecera de la Sidebar (donde va el título "Fornería") --- */
+.sidebar-header {
+    margin-bottom: 30px;       /* Espacio generoso para separar el logo del menú. */
+}
+
+/* --- Título Principal en la Sidebar --- */
+.sidebar-header .sidebar-title {
+    font-size: 24px;           /* Tamaño de fuente grande para el título. */
+    font-weight: bold;         /* Texto en negrita. */
+    color: #ffd700;            /* Color dorado para el título, creando un look premium. */
+    text-align: center;        /* Centra el título dentro de la sidebar. */
+}
+
+/* --- Menú de Navegación (la lista de enlaces) --- */
+/* El contenedor <ul> que agrupa todos los enlaces de navegación. */
+.sidebar-menu {
+    list-style: none;          /* Quita los puntos de la lista. */
+    padding: 0;                /* Quita el espaciado interior por defecto. */
+    margin: 0;                 /* Quita los márgenes por defecto. */
+    flex-grow: 1;              /* Permite que el menú ocupe todo el espacio vertical disponible entre el header y el footer. */
+}
+
+/* --- Enlaces Individuales de Navegación --- */
+/* Estilo para cada uno de los enlaces <a> del menú. */
+.sidebar-link {
+    display: flex;             /* Usa Flexbox para alinear el ícono y el texto. */
+    align-items: center;       /* Centra verticalmente el ícono y el texto. */
+    padding: 12px 15px;        /* Espacio interior para hacer el enlace más fácil de clickear. */
+    color: #ffffff;            /* Color de texto blanco. */
+    text-decoration: none;     /* Quita el subrayado de los enlaces. */
+    border-radius: 8px;        /* Esquinas redondeadas para un look moderno. */
+    margin-bottom: 8px;        /* Espacio entre cada enlace. */
+    transition: background-color 0.3s, color 0.3s; /* Transición suave para los efectos hover. */
+}
+
+/* --- Efecto al pasar el ratón sobre un enlace --- */
+.sidebar-link:hover {
+    background-color: #333333; /* Cambia el fondo a un gris oscuro para dar feedback al usuario. */
+}
+
+/* --- Estilo para el enlace de la página activa --- */
+/* Se aplica al enlace de la página que se está viendo actualmente. */
+.sidebar-link.active {
+    background-color: #ffd700; /* Fondo dorado para destacar el enlace activo. */
+    color: #1a1a1a;            /* Texto oscuro para que sea legible sobre el fondo dorado. */
+    font-weight: bold;         /* Texto en negrita para mayor énfasis. */
+}
+
+/* --- Iconos (emojis) dentro de los enlaces --- */
+.sidebar-link span {
+    margin-right: 10px;        /* Espacio entre el ícono y el texto del enlace. */
+}
+
+/* --- Pie de la Sidebar (donde va "Configuración") --- */
+/* El contenedor del pie de la barra lateral. */
+.sidebar-footer {
+    margin-top: auto;          /* Empuja el pie hacia la parte inferior de la sidebar. */
+}
+
+/* --- Reglas para tarjetas métricas y placeholders --- */
+.dashboard-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.dashboard-metric-card {
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+
+.metric-card-title { font-size: 1.1rem; margin-bottom: 6px; }
+.metric-card-value { font-size: 1.5rem; font-weight: 700; }
+.metric-card-subtitle { font-size: 0.9rem; color: #6c757d; }
+
+.gauge-placeholder { color: #6c757d; }
+.gauge-error { color: #d9534f; }
+
+@media (min-width: 992px){
+  .dashboard-metrics-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Badges for expiry status in inventory table */
+.badge-expiry-none { color: #6c757d; }
+.badge-expiry-ok { color: #155724; background: #d4edda; padding: 4px 8px; border-radius: 6px; }
+.badge-expiry-warning { color: #856404; background: #fff3cd; padding: 4px 8px; border-radius: 6px; }
+.badge-expiry-expired { color: #721c24; background: #f8d7da; padding: 4px 8px; border-radius: 6px; }
+
+/* --- Reglas para el contenido del dashboard (separación del sidebar) --- */
+.dashboard-content {
+    padding: 40px 48px; /* separa el contenido del borde y del sidebar */
+    overflow: auto;
+    background: transparent;
+}
+
+/* Ajustes para cajas internas usadas por páginas (evitan choque con .container global) */
+.dashboard-content .container.page-ventas-bg {
+    background-color: #fff9f5;
+    color: #d63384;
+    padding: 22px; /* espacio interior dentro de la caja blanca */
+    border-radius: 10px;
+}
+
+/* Tabla con tarjeta dentro del dashboard */
+.dashboard-content table {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.dashboard-content th {
+    background-color: #6c757d;
+    color: #fff;
+    text-align: center;
+}
+
+.dashboard-content td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.dashboard-content td.products { text-align: left; }
+.dashboard-content tr:nth-child(even) { background-color: #f8f9fa; }
+.dashboard-content .subtotal { font-weight: bold; color: #198754; }
+.dashboard-content .total-cell { font-weight: bold; color: #dc3545; }
+.dashboard-content .btn-new-sale { margin-bottom: 15px; }

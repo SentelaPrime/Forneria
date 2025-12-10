@@ -1,44 +1,64 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard - La Fornería</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #fff9f5; font-family: 'Segoe UI', sans-serif; }
-        h1 { color: #d63384; font-weight: 700; margin-bottom: 20px; }
-        .table img { border-radius: 6px; width: 70px; height: 70px; object-fit: cover; }
-        .navbar { margin-bottom: 30px; }
-        .navbar-brand { font-weight: 600; }
-    </style>
-</head>
-<body>
 
-<!-- 🔹 Barra de menú -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="{%url 'home' %}">🥐 La Fornería</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'ventas:lista_productos' %}">Inventario</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'ventas:lista_ventas' %}">Ventas</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+{% block contenido %}
 
-<!-- 🔹 Contenido principal -->
-<div class="container">
+<style>
+    body { background-color: #fff9f5; }
+    h1 { color: #d63384; font-weight: 700; margin-bottom: 20px; }
+    .table img { border-radius: 6px; width: 70px; height: 70px; object-fit: cover; }
+    .navbar-brand { font-weight: 600; }
+    .page-hero { padding-top: 24px; padding-bottom: 12px; }
+</style>
+
+<div class="dashboard-main-container">
+    <!-- Sidebar -->
+    <nav class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Fornería</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{% url 'home' %}" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:lista_ventas' %}" class="sidebar-link">
+                    <span>🛒</span> Ventas
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:lista_productos' %}" class="sidebar-link active">
+                    <span>📦</span> Inventario
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:nuevo_producto' %}" class="sidebar-link">
+                    <span>➕</span> Agregar Producto
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:ver_reporte' %}" class="sidebar-link">
+                    <span>📈</span> Reportes
+                </a>
+            </li>
+            {% if request.user.is_authenticated and request.user.is_superuser %}
+            <li class="sidebar-item">
+                <a href="{% url 'usuarios_list' %}" class="sidebar-link">
+                    <span>👥</span> Usuarios
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+        <div class="sidebar-footer">
+            <a href="#" class="sidebar-link">
+                <span>⚙️</span> Configuración
+            </a>
+        </div>
+    </nav>
+
+<div class="container page-hero">
     <h1>Inventario de Productos</h1>
     <a href="{% url 'ventas:nuevo_producto' %}" class="btn btn-success mb-3">➕ Nuevo Producto</a>
 
@@ -47,6 +67,7 @@
             <tr>
                 <th>Imagen</th>
                 <th>Nombre</th>
+                <th>Caducidad</th>
                 <th>Categoría</th>
                 <th>Precio</th>
                 <th>Stock</th>
@@ -60,11 +81,29 @@
                     {% if p.imagen %}
                         <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
                     {% else %}
-                        <img src="{% static 'img/no-image.png' %}" alt="Sin imagen">
+                        <img src="{% static 'images/noimage.png' %}" alt="Sin imagen">
                     {% endif %}
                 </td>
                 <td>{{ p.nombre }}</td>
-                <td>{{ p.get_categoria_display }}</td>
+                <td>
+                    {% if p.caducidad %}
+                        {{ p.caducidad|date:"d/m/Y" }}<br>
+                        {% with estado=p.estado_caducidad %}
+                            {% if estado.0 == 'vencido' %}
+                                <span class="badge-expiry-expired">{{ estado.1 }}</span>
+                            {% elif estado.0 == 'por_vencer' %}
+                                <span class="badge-expiry-warning">{{ estado.1 }}</span>
+                            {% elif estado.0 == 'ok' %}
+                                <span class="badge-expiry-ok">{{ estado.1 }}</span>
+                            {% else %}
+                                <span class="badge-expiry-none">-</span>
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        <span class="badge-expiry-none">Sin fecha</span>
+                    {% endif %}
+                </td>
+                <td>{{ p.categoria }}</td>
                 <td>${{ p.precio }}</td>
                 <td>{{ p.stock }}</td>
                 <td>
@@ -79,9 +118,7 @@
             {% endfor %}
         </tbody>
     </table>
-</div>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}
 

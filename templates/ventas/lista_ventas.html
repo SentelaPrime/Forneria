@@ -1,63 +1,57 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard - Ventas | La Fornería</title>
-    <link rel="stylesheet" href="{% static '/css/style.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #fff9f5; font-family: 'Segoe UI', sans-serif; }
-        h2 { color: #d63384; font-weight: 700; margin-top: 20px; margin-bottom: 20px; }
-        .table img { border-radius: 6px; width: 70px; height: 70px; object-fit: cover; }
-        .navbar { margin-bottom: 30px; }
-        .navbar-brand { font-weight: 600; }
-        table {
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        th {
-            background-color: #6c757d;
-            color: #fff;
-            text-align: center;
-        }
-        td {
-            text-align: center;
-            vertical-align: middle;
-        }
-        td.products { text-align: left; }
-        tr:nth-child(even) { background-color: #f8f9fa; }
-        .subtotal { font-weight: bold; color: #198754; }
-        .total-cell { font-weight: bold; color: #dc3545; }
-        .btn-new-sale { margin-bottom: 15px; }
-    </style>
-</head>
-<body>
 
-<!-- 🔹 Barra de navegación -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">🥐 La Fornería</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'ventas:lista_productos' %}">Inventario</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'ventas:lista_ventas' %}">Ventas</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+{% block contenido %}
 
-<!-- 🔹 Contenido principal -->
-<div class="container mt-4">
+<div class="dashboard-main-container">
+    <!-- Sidebar -->
+    <nav class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Fornería</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{% url 'home' %}" class="sidebar-link">
+                    <span>📊</span> Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:lista_ventas' %}" class="sidebar-link active">
+                    <span>🛒</span> Ventas
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:lista_productos' %}" class="sidebar-link">
+                    <span>📦</span> Inventario
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:nuevo_producto' %}" class="sidebar-link">
+                    <span>➕</span> Agregar Producto
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'ventas:ver_reporte' %}" class="sidebar-link">
+                    <span>📈</span> Reportes
+                </a>
+            </li>
+            {% if request.user.is_authenticated and request.user.is_superuser %}
+            <li class="sidebar-item">
+                <a href="{% url 'usuarios_list' %}" class="sidebar-link">
+                    <span>👥</span> Usuarios
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+        <div class="sidebar-footer">
+            <a href="#" class="sidebar-link">
+                <span>⚙️</span> Configuración
+            </a>
+        </div>
+    </nav>
+
+<div class="dashboard-content">
+    <div class="container mt-4 page-ventas-bg">
     <h2>📋 Lista de Ventas</h2>
 
     <!-- Botón para ir al formulario de nueva venta -->
@@ -95,11 +89,10 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}
 
 
 

@@ -1,0 +1,49 @@
+{% load static %}
+<div class="dashboard-main-container">
+    <!-- Sidebar -->
+    <nav class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Fornería</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link active">
+                    <span>📊</span> Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link">
+                    <span>🛒</span> Ventas (POS)
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link">
+                    <span>📦</span> Inventario
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link">
+                    <span>➕</span> Agregar Producto
+                </a>
+            </li>
+
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link">
+                    <span>📈</span> Reportes
+                </a>
+            </li>
+            {% if request.user.is_authenticated and request.user.is_superuser %}
+            <li class="sidebar-item">
+                <a href="{% url 'usuarios_list' %}" class="sidebar-link">
+                    <span>👥</span> Usuarios
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+        <div class="sidebar-footer">
+            <a href="#" class="sidebar-link">
+                <span>⚙️</span> Configuración
+            </a>
+        </div>
+    </nav>
+

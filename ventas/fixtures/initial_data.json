@@ -1,0 +1,38 @@
+[
+  {
+    "model": "ventas.producto",
+    "pk": 1,
+    "fields": {
+      "nombre": "Botella",
+      "precio": "123.00",
+      "stock": 5,
+      "categoria": "bebida",
+      "imagen": ""
+    }
+  },
+  {
+    "model": "ventas.venta",
+    "pk": 1,
+    "fields": {
+      "fecha": "2025-12-10T04:11:14.374367",
+      "metodo_pago": "Tarjeta",
+      "total": "210.33",
+      "descuento": "10.00",
+      "iva": "90.00",
+      "cliente_nombre": "Joaquin",
+      "cliente_rut": "22.062.642-3",
+      "cliente_email": "joaquin.cortes19@inacapmail.cl"
+    }
+  },
+  {
+    "model": "ventas.detalleventa",
+    "pk": 1,
+    "fields": {
+      "cantidad": 1,
+      "precio_unitario": "123.00",
+      "subtotal": "123.00",
+      "producto": 1,
+      "venta": 1
+    }
+  }
+]

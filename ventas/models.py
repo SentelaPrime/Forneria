@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 
 class Producto(models.Model):
     CATEGORIAS = [
@@ -13,6 +14,29 @@ class Producto(models.Model):
     stock = models.PositiveIntegerField(default=0)
     categoria = models.CharField(max_length=20, choices=CATEGORIAS, default='otros')
     imagen = models.ImageField(upload_to='productos/', blank=True, null=True)  # 👈 clave aquí
+    caducidad = models.DateField(blank=True, null=True)
+
+    @property
+    def dias_para_caducar(self):
+        """Devuelve número de días desde hoy hasta la caducidad.
+        - Si no hay fecha, devuelve None.
+        - Si ya venció, devuelve un número negativo o 0."""
+        if not self.caducidad:
+            return None
+        delta = (self.caducidad - date.today()).days
+        return delta
+
+    def estado_caducidad(self):
+        """Retorna una tupla (estado, texto) para mostrar en la UI.
+        estados: 'none', 'vencido', 'por_vencer', 'ok'"""
+        dias = self.dias_para_caducar
+        if dias is None:
+            return ('none', '')
+        if dias < 0:
+            return ('vencido', f'Vencido ({-dias} días)')
+        if dias <= 7:
+            return ('por_vencer', f'Por vencer ({dias} días)')
+        return ('ok', f'{dias} días')
 
     def __str__(self):
         return self.nombre

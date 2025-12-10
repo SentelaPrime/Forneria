@@ -22,17 +22,37 @@ class DetalleVentaForm(forms.ModelForm):
     class Meta:
         model = DetalleVenta
         fields = ['producto', 'cantidad']
+        widgets = {
+            'cantidad': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'placeholder': 'Cantidad'
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Mostrar nombre y precio en el select
         self.fields['producto'].queryset = Producto.objects.all()
-        self.fields['producto'].label_from_instance = lambda obj: f"{obj.nombre} (${obj.precio})"
+        self.fields['producto'].label_from_instance = lambda obj: f"{obj.nombre} (${obj.precio}) - Stock: {obj.stock}"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        producto = cleaned_data.get('producto')
+        cantidad = cleaned_data.get('cantidad')
+        
+        if producto and cantidad:
+            if cantidad > producto.stock:
+                raise forms.ValidationError(
+                    f"Stock insuficiente. Disponible: {producto.stock} unidades. Solicitado: {cantidad}"
+                )
+        
+        return cleaned_data
 
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
-        fields = ['nombre', 'precio', 'stock', 'categoria', 'imagen']
+        fields = ['nombre', 'precio', 'stock', 'categoria', 'imagen', 'caducidad']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -56,6 +76,10 @@ class ProductoForm(forms.ModelForm):
                 'class': 'form-control',
                 'accept': 'image/*'
             }),
+            'caducidad': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
         }
         labels = {
             'nombre': 'Nombre del producto',
@@ -63,4 +87,12 @@ class ProductoForm(forms.ModelForm):
             'stock': 'Stock disponible',
             'categoria': 'Categoría',
             'imagen': 'Imagen del producto'
+            , 'caducidad': 'Fecha de caducidad'
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Si se está creando (no existe pk), hacer caducidad requerida
+        if not (self.instance and self.instance.pk):
+            self.fields['caducidad'].required = True
+            self.fields['caducidad'].widget.attrs.update({'required': 'required'})

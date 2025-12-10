@@ -1,0 +1,43 @@
+<!-- templates/includes/navbar.html -->
+{% load static %}
+<!-- Partial: barra de navegación reutilizable -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+      <img src="{% static 'images/logo.jpg' %}" alt="logo" style="height:28px;" class="me-2">
+      🥐 La Fornería
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="{% url 'ventas:lista_productos' %}">Inventario</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'ventas:lista_ventas' %}">Ventas</a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto">
+        {% if user.is_authenticated %}
+          <li class="nav-item d-flex align-items-center me-2">
+            <span class="navbar-text text-light">Hola, <strong>{{ user.first_name|default:user.username }}</strong></span>
+          </li>
+          <li class="nav-item">
+            <form method="post" action="{% url 'logout' %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-link nav-link text-warning p-0" style="text-decoration:none;">Cerrar sesión</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

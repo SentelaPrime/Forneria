@@ -1,23 +1,81 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block contenido %}
-{% load crispy_forms_tags %}
-<div class="row">
-    <div class="col-8 offset-2 mx-auto mt-5">
-        <div class="card shadow-lg" style="width: 25rem;">
-            <img src="{% static 'images/logo.JPG' %}" class="card-img-top" alt="logo la forneria">
-            <div class="card-body">
-                <h5 class="card-title">Inicio de Sesión</h5>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form | crispy }}
-                    <button class="btn btn-success" type="submit">Iniciar Sesión</button>
-                </form>
+<style>
+    .login-hero { min-height: 90vh; }
+    .login-left {
+        background-image: url("{% static 'images/logo.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        min-height: 90vh;
+    }
+    .glass-card {
+        backdrop-filter: blur(6px);
+        background: rgba(35, 33, 31, 0.65);
+        border-radius: 18px;
+        box-shadow: 0 8px 30px rgba(146, 33, 33, 0.15);
+        border: 1px solid rgba(0, 0, 0, 0.6);
+    }
+    .brand-title { font-family: 'Georgia', serif; letter-spacing: 1px; }
+</style>
+
+<div class="container-fluid login-hero px-0">
+    <div class="row g-0">
+        <!-- Left: big photo -->
+        <div class="col-12 col-lg-7 login-left d-none d-lg-block"></div>
+
+        <!-- Right: translucent panel -->
+        <div class="col-12 col-lg-5 d-flex align-items-center justify-content-center">
+            <div class="p-4 p-md-5 m-4 w-100" style="max-width:520px;">
+                <div class="glass-card p-4 p-md-5">
+                    <div class="text-center mb-3">
+                        <img src="{% static 'images/laforneria.JPG' %}" alt="La Forneria" style="max-height:84px;" class="mb-2">
+                        <h3 class="brand-title mb-0" style="color:#D4AF37;">La Forneria</h3>
+                        <small class="text-muted">Cafetería · Panadería · Pastelería · Emporio</small>
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.username|as_crispy_field }}
+                        </div>
+                        <div class="mb-2">
+                            {{ form.password|as_crispy_field }}
+                        </div>
+
+                        <div class="d-grid mt-3">
+                            <button class="btn btn-dark btn-lg" type="submit" style="color:#D4AF37;"><i class="bi bi-door-open-fill me-2"></i>Entrar</button>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3 small">
+                            <a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4 small text-muted">Al iniciar sesión aceptas nuestras políticas</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 
